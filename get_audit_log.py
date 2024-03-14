@@ -1,19 +1,30 @@
+#
+# Get Delphix Continuous Compliance Audit Log
+#
+#
+# Run example:
+# python get_audit.py --engine_fqdn 172.16.190.100 --username admin --password Admin-12 --start_date --end_date
+#
+#        if not specified, start_date is set to: 2000-01-01T00:00:00.000+00:00
+#        if not specified, end_date   is set to: 2099-01-01T00:00:00.000+00:00
+#
+
+
 from typing import Optional, Tuple, List
+# from datetime import datetime
 import requests
-import logging
-import os
+# import logging
+# import os
 import traceback
 import urllib3
-import time
+# import time
 import argparse
-
-
 
 # CONFIGURATION SECTION
 valid_response_status_codes = [200, 201]
 base_header = {'Content-Type': 'application/json'}
 pageSize = 500
-timeout=(30, 300)
+timeout = (30, 300)
 
 
 # UNCOMMENT IT FOR DEBUG ON HTTPS LEVEL
@@ -25,17 +36,18 @@ timeout=(30, 300)
 #     import httplib as http_client
 # http_client.HTTPConnection.debuglevel = 1
 
-
 # THIS IS TO DISABLE WARNINGS ON SELF SIGNED CA
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-
 base_url = None
+
+
 def set_authorization(auth_key):
     base_header["Authorization"] = auth_key
 
 
-def post_call(url :str, request_headers :dict, request_data: dict =None, files: dict=None) -> Tuple[bool, Optional[dict]]:
+def post_call(url: str, request_headers: dict, request_data: dict = None, files: dict = None) -> Tuple[bool, Optional[dict]]:
+    global response
     try:
         if request_data:
             response = requests.post(url, headers=request_headers, json=request_data, timeout=timeout, verify=False)
@@ -54,15 +66,14 @@ def post_call(url :str, request_headers :dict, request_data: dict =None, files: 
         return False, None
 
 
-
-def get_call(url :str, request_headers :dict, query_params :dict=None) -> Tuple[bool, Optional[List[dict]]]:
-    '''
-    Get all objects using page size defined in pageSize
-    '''
+def get_call(url: str, request_headers: dict, query_params: dict = None) -> Tuple[bool, Optional[List[dict]]]:
+    #
+    # Get all objects using page size defined in pageSize
+    #
+    global response
 
     if not query_params:
         query_params = dict()
-
 
     page_number = 1
     query_params["page_size"] = pageSize
@@ -91,10 +102,10 @@ def get_call(url :str, request_headers :dict, query_params :dict=None) -> Tuple[
     return True, return_list
 
 
-def get_one_call(url :str, request_headers :dict, query_params :dict=None) -> Tuple[bool, Optional[dict]]:
-    '''
-    Get only one object - no pagination involved - url already should have an ID
-    '''
+def get_one_call(url: str, request_headers: dict, query_params: dict = None) -> Tuple[bool, Optional[dict]]:
+    #
+    # Get only one object - no pagination involved - url already should have an ID
+    #
 
     if query_params:
         response = requests.get(url, headers=request_headers, params=query_params, verify=False)
@@ -107,14 +118,17 @@ def get_one_call(url :str, request_headers :dict, query_params :dict=None) -> Tu
     return True, response.json()
 
 
-def get_audit(base_url :str, auth_key :str) -> Tuple[bool, Optional[dict]]:
-    '''
-    Get audit entry
-    '''
+def get_audit(base_url: str, auth_key: str) -> Tuple[bool, Optional[dict]]:
+    #
+    # Get audit entry
+    #
 
     set_authorization(auth_key)
 
-    api_url = f"{base_url}/audit-logs"
+    api_url = f"{base_url}/audit-logs?start_time="+start_audit_date+"&end_time="+end_audit_date
+
+    print(api_url)
+
     success, response = get_call(api_url, base_header)
     if not success:
         return False, None
@@ -122,10 +136,10 @@ def get_audit(base_url :str, auth_key :str) -> Tuple[bool, Optional[dict]]:
     return True, response
 
 
-def login(base_url :str, user :str, password :str) -> Tuple[bool, Optional[dict]]:
-    '''
-    login to engine
-    '''
+def login(base_url: str, user: str, password: str) -> Tuple[bool, Optional[dict]]:
+    #
+    # login to engine
+    #
     
     api_url = f"{base_url}/login"
     request_data = dict()
@@ -140,9 +154,6 @@ def login(base_url :str, user :str, password :str) -> Tuple[bool, Optional[dict]
     return True, response
 
 
-# Run example:
-# python get_audit.py --engine_fqdn 172.16.190.100 --username admin --password Admin-12
-
 
 if __name__ == "__main__":
 
@@ -150,13 +161,28 @@ if __name__ == "__main__":
     parser.add_argument('--engine_fqdn', type=str, help='engine fqdn')
     parser.add_argument('--username', type=str, help='username')
     parser.add_argument('--password', type=str, help='password')
+    parser.add_argument('--start_date', type=str, help='start date for audit log')
+    parser.add_argument('--end_date', type=str, help='end date for audit log')
 
+    # current_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+"+00:00"
 
     args = parser.parse_args()
+
+    # set default start and end date if not specified
+
+    if not args.start_date:
+        args.start_date = "2000-01-01T00:00:00.000+00:00"
+
+    if not args.end_date:
+        args.end_date = "2099-01-01T00:00:00.000+00:00"
 
     engine_fqdn = args.engine_fqdn
     username = args.username
     password = args.password
+    auth_key = ""
+
+    start_audit_date = requests.utils.quote(args.start_date)
+    end_audit_date = requests.utils.quote(args.end_date)
 
     base_url = f"https://{engine_fqdn}/masking/api"
     ret_status, response = login(base_url, username, password)
