@@ -1,24 +1,41 @@
+
 #
-# Get Delphix Continuous Compliance Audit Log
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Copyright (c) 2024 by Delphix. All rights reserved.
+#
+# Author  :  Marcin Przepiorowski
+# Modified:  Matteo Ferrari
+# Date    :  March 2024
+#
+# Get Delphix Continuous Compliance Engine Audit Log for a specific period
 #
 # Run example:
-# python get_audit.py --engine_fqdn 172.16.190.100 --username admin --password Admin-12 --start_date --end_date
+# python get_audit_log.py --engine_fqdn 172.16.190.100 --username admin --password Admin-12 --start_date --end_date
 #
-#        if not specified, start_date is set to: 2000-01-01T00:00:00.000+00:00
-#        if not specified, end_date   is set to: 2099-01-01T00:00:00.000+00:00
+#        if start_date not specified, it is set to: 2000-01-01T00:00:00.000+00:00
+#        if end_date not specified,   it is set to: 2099-01-01T00:00:00.000+00:00
 #
-
 
 from typing import Optional, Tuple, List
-# from datetime import datetime
 import requests
-# import logging
-# import os
 import traceback
 import urllib3
-# import time
 import argparse
+# import logging
+# import os
+# from datetime import datetime
+# import time
 
 # CONFIGURATION SECTION
 valid_response_status_codes = [200, 201]
