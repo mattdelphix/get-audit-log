@@ -3,9 +3,15 @@
 ## What is it
 
 get-audit-log is a program that, using Delphix Continuous Compliance APIs permits to export CDE Audit log in JSON format, for SIEM purposes.
-dct-toolkit is a set of scripts, which are delivered by Delphix professional services team.
-dct-toolkit scripts look and feel like UNIX executables, following the typical conventions of using flags for arguments.  
-dct-toolkit is written in Python, but no knowledge of Python is required unless you want to extend it.  In fact, no programming experience whatsoever is required to use the dct-toolkit.
+get-audit-log is written in Python, but no knowledge of Python is required unless you want to extend it.  
+
+get-audit-log store data of latest executiion or end date (if explicilty specified) in a file named:
+
+.last_audit_extract_ENGINE_FQDN
+
+where ENGINE_FQDN is the value of --engine_fqdn
+
+
 
 ## Syntax:
 
