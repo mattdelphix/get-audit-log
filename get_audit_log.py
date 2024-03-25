@@ -32,9 +32,9 @@ import requests
 import traceback
 import urllib3
 import argparse
+import os.path
 # import logging
-# import os
-# from datetime import datetime
+from datetime import datetime
 # import time
 
 # CONFIGURATION SECTION
@@ -42,7 +42,6 @@ valid_response_status_codes = [200, 201]
 base_header = {'Content-Type': 'application/json'}
 pageSize = 500
 timeout = (30, 300)
-
 
 # UNCOMMENT IT FOR DEBUG ON HTTPS LEVEL
 
@@ -174,32 +173,52 @@ def login(base_url: str, user: str, password: str) -> Tuple[bool, Optional[dict]
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Running masking job with name')
+    parser = argparse.ArgumentParser(description='Extract Continuous Compliance Engine Audit Log')
     parser.add_argument('--engine_fqdn', type=str, help='engine fqdn')
     parser.add_argument('--username', type=str, help='username')
     parser.add_argument('--password', type=str, help='password')
     parser.add_argument('--start_date', type=str, help='start date for audit log')
     parser.add_argument('--end_date', type=str, help='end date for audit log')
-
-    # current_time = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+"+00:00"
+    parser.add_argument('--engine_offset', type=str, help='engine offset (in the form "+00:00" or "-00:00"')
 
     args = parser.parse_args()
 
     # set default start and end date if not specified
 
+    if not args.engine_offset:
+        args.engine_offset = "+00:00"
+
     if not args.start_date:
-        args.start_date = "2000-01-01T00:00:00.000+00:00"
+        args.start_date = "2000-01-01T00:00:00.000"+args.engine_offset
+    else:
+        args.start_date = args.start_date+args.engine_offset
+
 
     if not args.end_date:
-        args.end_date = "2099-01-01T00:00:00.000+00:00"
+        args.end_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3]+args.engine_offset
+    else:
+        args.end_date = args.end_date+args.engine_offset
+
+    # args.end_date = "2099-01-01T00:00:00.000"+args.engine_offset
 
     engine_fqdn = args.engine_fqdn
     username = args.username
     password = args.password
     auth_key = ""
+    last_exec_file = ".last_audit_extract_" + engine_fqdn
 
+    # read last execution from file
+
+    if os.path.isfile(last_exec_file):
+       with open(last_exec_file, 'r') as file:
+            args.start_date = file.read()
+
+    print("Start: " + args.start_date)
+    print("End:   " + args.end_date)
     start_audit_date = requests.utils.quote(args.start_date)
     end_audit_date = requests.utils.quote(args.end_date)
+
+    # Execution
 
     base_url = f"https://{engine_fqdn}/masking/api"
     ret_status, response = login(base_url, username, password)
@@ -209,6 +228,14 @@ if __name__ == "__main__":
     ret_status, response = get_audit(base_url, auth_key)
     if ret_status:
         for audit_item in sorted(response, key=lambda audit_entry: audit_entry["auditId"]):
-            print(audit_item)
+
+            # enrich json with engine name
+            final_audit_item = {**{"engine": engine_fqdn}, **audit_item}
+            print(final_audit_item)
+
+        # write last execution
+        with open(last_exec_file, "w") as f:
+            f.write(args.end_date)
+
     else:
         print("Problem with getting audit entries")
