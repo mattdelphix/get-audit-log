@@ -1,4 +1,4 @@
-# get-audit-log
+# get_audit_log
 
 ## What is it
 
@@ -18,17 +18,29 @@ Next executions will use the last execution timestamp as a starting point for ne
 
 ## Syntax:
 
-###get_audit_log --version
+### get_audit_log --help 
+
+prints out program syntax
+
+
+### get_audit_log --version
 
 prints out program version and stops
 
 
-#get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123  --start_date 2024-03-12T18:53:25.044 --end_date 2024-03-21T18:53:25.044 --engine_offset "+02:00" --output extraction.json
+### get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123 --output initial_extraction.json
+
+prints in file initial_extraction.json the list of all audit records from 2000-01-01 up to the time of current execution.
+Last date is stored into .last_audit_extract_172.16.111.160
+
+
+### get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123  --start_date 2024-03-12T18:53:25.044 --end_date 2024-03-21T18:53:25.044 --engine_offset "+02:00" --output extraction.json
+
+prints in file extraction.json the list of audit records fro start_date to end_date, forcing an offset
 
 
 
-
-### Source version
+## Source version
 
 Python 3.9 or higher
 
