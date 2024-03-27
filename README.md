@@ -18,7 +18,7 @@ Next executions will use the last execution timestamp as a starting point for ne
 
 ## Syntax:
 
-#get_audit_log --version
+###get_audit_log --version
 
 prints out program version and stops
 
@@ -89,4 +89,4 @@ This software is provided as-is, without warranty of any kind or commercial supp
  See the License for the specific language governing permissions and
  limitations under the License.
 ```
-Copyright (c) 2022 by Delphix. All rights reserved.
+Copyright (c) 2024 by Delphix. All rights reserved.
