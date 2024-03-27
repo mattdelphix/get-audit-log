@@ -33,6 +33,8 @@ import traceback
 import urllib3
 import argparse
 import os.path
+import json
+import sys
 # import logging
 from datetime import datetime
 # import time
@@ -42,6 +44,7 @@ valid_response_status_codes = [200, 201]
 base_header = {'Content-Type': 'application/json'}
 pageSize = 500
 timeout = (30, 300)
+script_version = "Version 1.0 - 03-27-2024"
 
 # UNCOMMENT IT FOR DEBUG ON HTTPS LEVEL
 
@@ -143,7 +146,7 @@ def get_audit(base_url: str, auth_key: str) -> Tuple[bool, Optional[dict]]:
 
     api_url = f"{base_url}/audit-logs?start_time="+start_audit_date+"&end_time="+end_audit_date
 
-    print(api_url)
+    print("API URL     : "+api_url)
 
     success, response = get_call(api_url, base_header)
     if not success:
@@ -169,6 +172,14 @@ def login(base_url: str, user: str, password: str) -> Tuple[bool, Optional[dict]
 
     return True, response
 
+def check_connectivity(url):  
+    # Request the URL and check the status code  
+    response = requests.get(url)  
+    if response.status_code == 200:  
+        print(f"Successfully connected to {url}")  
+    else:  
+        print(f"Failed to connect to {url}. Status code: {response.status_code}")
+        sys.exit(8) 
 
 
 if __name__ == "__main__":
@@ -180,10 +191,35 @@ if __name__ == "__main__":
     parser.add_argument('--start_date', type=str, help='start date for audit log')
     parser.add_argument('--end_date', type=str, help='end date for audit log')
     parser.add_argument('--engine_offset', type=str, help='engine offset (in the form "+00:00" or "-00:00"')
+    parser.add_argument('--output', type=str, help='file name that will contain the log records')
+    parser.add_argument('--version', action='store_true', help='prints version of this program')
 
     args = parser.parse_args()
 
+    print("=====================================================================")
+    print(" Delphix Continuous Compliance Audit Log extraction")
+    print("=====================================================================")
     # set default start and end date if not specified
+      
+    if args.version:
+        print(script_version)
+        sys.exit(0)
+
+    if not args.engine_fqdn:
+        print("Error: engine name or IP must be specified.")
+        sys.exit(8)
+
+    if not args.username:
+        print("Error: username must be specified.")
+        sys.exit(8)
+
+    if not args.password:
+        print("Error: password must be specified.")
+        sys.exit(8)
+
+    if not args.output:
+        print("Error: output filename must be specified.")
+        sys.exit(8)
 
     if not args.engine_offset:
         args.engine_offset = "+00:00"
@@ -213,29 +249,40 @@ if __name__ == "__main__":
        with open(last_exec_file, 'r') as file:
             args.start_date = file.read()
 
-    print("Start: " + args.start_date)
-    print("End:   " + args.end_date)
+    print("Engine      : " + args.engine_fqdn)
+    print("Start       : " + args.start_date)
+    print("End         : " + args.end_date)
+    print("Output file : " + args.output)
+    
     start_audit_date = requests.utils.quote(args.start_date)
     end_audit_date = requests.utils.quote(args.end_date)
 
     # Execution
 
     base_url = f"https://{engine_fqdn}/masking/api"
+    
+    #check_connectivity(base_url)
+    
     ret_status, response = login(base_url, username, password)
     if ret_status:
         auth_key = response["Authorization"] 
 
     ret_status, response = get_audit(base_url, auth_key)
     if ret_status:
+        f = open(args.output, "w")
+        countr = 0
         for audit_item in sorted(response, key=lambda audit_entry: audit_entry["auditId"]):
 
             # enrich json with engine name
             final_audit_item = {**{"engine": engine_fqdn}, **audit_item}
-            print(final_audit_item)
-
+            countr = countr +1
+            f.write(json.dumps(final_audit_item)+'\n')
+        f.close()
+        print("Records out : " + str(countr))
         # write last execution
         with open(last_exec_file, "w") as f:
             f.write(args.end_date)
 
     else:
         print("Problem with getting audit entries")
+        sys.exit(8)
