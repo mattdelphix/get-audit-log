@@ -2,20 +2,31 @@
 
 ## What is it
 
-get-audit-log is a program that, using Delphix Continuous Compliance APIs permits to export CDE Audit log in JSON format, for SIEM purposes.
-get-audit-log is written in Python, but no knowledge of Python is required unless you want to extend it.  
+get_audit_log is a program that, using Delphix Continuous Compliance APIs permits to export CDE Audit log in JSON format, for SIEM purposes.
+get_audit_log is written in Python, but no knowledge of Python is required unless you want to extend it.
+It has been complied on CentOS 8 and should be compatible with RHEL 8.
 
-get-audit-log store data of latest executiion or end date (if explicilty specified) in a file named:
+
+get_audit_log stores data of latest executiion or end date (if explicilty specified) in a file named:
 
 .last_audit_extract_ENGINE_FQDN
 
 where ENGINE_FQDN is the value of --engine_fqdn
 
+Next executions will use the last execution timestamp as a starting point for new extractions. If you want to reset extraction, simply delete the .last_audit_xxxx file and rerun wiuth our without a start date. 
 
 
 ## Syntax:
 
-get_audit_log.py --engine_fqdn 172.16.111.160 --username admin --password passwd_123  --start_date 2024-03-12T18:53:25.044 --end_date 2024-03-21T18:53:25.044 --engine_offset "+02:00"
+#get_audit_log --version
+
+prints out program version and stops
+
+
+#get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123  --start_date 2024-03-12T18:53:25.044 --end_date 2024-03-21T18:53:25.044 --engine_offset "+02:00" --output extraction.json
+
+
+
 
 ### Source version
 
