@@ -44,7 +44,25 @@ Last date is NOT stored into .last_audit_extract_172.16.111.160,  File is NOT de
 
 prints in file extraction.json the list of audit records fro start_date to end_date, forcing an offset
 
+## JSON Output file example
 
+This is a sample output of the generated JSON.
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 1, "userName": "admin", "activityDescription": "Logged in user (id=7).", "activityTime": "2023-10-26T15:50:21.541+00:00", "actionType": "LOGIN", "target": "USER", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 2, "userName": "admin", "activityDescription": "Logged in user (id=7).", "activityTime": "2023-10-26T15:52:38.641+00:00", "actionType": "LOGIN", "target": "USER", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 3, "userName": "admin", "activityDescription": "Viewed all Application Settings.", "activityTime": "2023-10-26T15:52:38.941+00:00", "actionType": "GET_ALL", "target": "APPLICATION_SETTING", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 4, "userName": "admin", "activityDescription": "Viewed all User.", "activityTime": "2023-10-26T15:52:39.046+00:00", "actionType": "GET_ALL", "target": "USER", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 5, "userName": "admin", "activityDescription": "Edited user (id=7).", "activityTime": "2023-10-26T15:52:39.127+00:00", "actionType": "EDIT", "target": "USER", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 320, "userName": "admin", "activityDescription": "Ran execution (id=2) for job 'Profiling' (id=1) in environment 'Postgres' (id=1).", "activityTime": "2023-10-30T18:46:06.869+00:00", "actionType": "RUN", "target": "PROFILE_JOB", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 785, "userName": "admin", "activityDescription": "Created job 'Masking' (id=2) in environment 'Postgres' (id=1).", "activityTime": "2023-11-02T17:42:22.620+00:00", "actionType": "CREATE", "target": "MASKING_JOB", "status": "SUCCEEDED"}
+
+{"engine": "172.16.111.160", "label": "prova", "auditId": 786, "userName": "admin", "activityDescription": "Viewed all Execution.", "activityTime": "2023-11-02T17:42:25.560+00:00", "actionType": "GET_ALL", "target": "EXECUTION", "status": "SUCCEEDED"}
 
 ## Source version
 
