@@ -34,6 +34,12 @@ prints in file initial_extraction.json the list of all audit records from 2000-0
 Last date is stored into .last_audit_extract_172.16.111.160
 
 
+### get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123 --output initial_extraction.json --test_only
+
+Test run that skips the use of  .last_audit_extract_172.16.111.160 and prints in file initial_extraction.json the list of all audit records from 2000-01-01 up to the time of current execution.
+Last date is NOT stored into .last_audit_extract_172.16.111.160,  File is NOT deleted, so a new normal run will use it.
+
+
 ### get_audit_log --engine_fqdn 172.16.111.160 --username admin --password passwd_123  --start_date 2024-03-12T18:53:25.044 --end_date 2024-03-21T18:53:25.044 --engine_offset "+02:00" --output extraction.json
 
 prints in file extraction.json the list of audit records fro start_date to end_date, forcing an offset
